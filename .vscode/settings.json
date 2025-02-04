@@ -4,7 +4,7 @@
     "perl.enable": true,
     "python.analysis.autoImportCompletions": true,
     "python.analysis.typeCheckingMode": "standard",
-    "python.pythonPath": "C:\\Users\\evgen\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+    "python.pythonPath": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.496.0_x64__qbz5n2kfra8p0\\python3.13.exe",
     "workbench.editor.defaultBinaryEditor": "default",
     "inlinePythonPackageInstaller.autoInstall": true,
     "autoPythonInstaller.autoInstall": true
