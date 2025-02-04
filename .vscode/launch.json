@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "perl",
+            "request": "launch",
+            "name": "Perl-Debug",
+            "program": "/",
+            "stopOnEntry": true,
+            "reloadModules": true
+        },
+        
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "Bash-Debug (hardcoded script name)",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/path/to/script.sh",
+            "args": []
+        },
+        {
+            "type": "bashdb",
+            "request": "launch",
+            "name": "Bash-Debug (simplest configuration)",
+            "program": "${file}"
+        },
+        {
+            "name": "Python Debugger: Python File",
+            "type": "perl",
+            "request": "launch",
+            "program": "${file}"
+        }
+    ]
+}

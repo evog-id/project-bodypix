@@ -21,11 +21,19 @@ import numpy as np
 
 from PIL import Image
 
-from tflite_runtime.interpreter import load_delegate
-from tflite_runtime.interpreter import Interpreter
+try:
+    from tflite_runtime.interpreter import Interpreter
+    from tflite_runtime.interpreter import load_delegate
+except ImportError:
+    try:
+        from tensorflow.lite import Interpreter
+        from tensorflow.lite import load_delegate
+    except ImportError:
+        raise ImportError("Neither tflite_runtime nor tensorflow.lite is available. Please install one of them to proceed.")
 
-from pycoral.adapters.common import output_tensor
-from pycoral.utils.edgetpu import run_inference
+
+#from pycoral.adapters.common import output_tensor
+#from pycoral.utils.edgetpu import run_inference
 
 EDGETPU_SHARED_LIB = 'libedgetpu.so.1'
 POSENET_SHARED_LIB = os.path.join(
@@ -198,7 +206,7 @@ class PoseEngine:
         return inference_time, poses, heatmap, bodyparts
 
     def DetectPosesInTensor(self, tensor):
-        inference_time, output = self.run_inference(tensor)
+        inference_time, outputs = self.run_inference(tensor)
         poses = self._parse_poses(outputs)
         heatmap, bodyparts = self._parse_heatmaps(outputs)
         return inference_time, poses, heatmap, bodyparts
@@ -244,7 +252,8 @@ class PoseEngine:
 
     def run_inference(self, input):
         start_time = time.monotonic()
-        run_inference(self._interpreter, input)
+        self._interpreter.set_tensor(self._interpreter.get_input_details()[0]['index'], input)
+        self._interpreter.invoke()
         duration_ms = (time.monotonic() - start_time) * 1000
 
         output = []
