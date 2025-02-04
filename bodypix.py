@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# {% load Copyright 2019 Google LLC_tags %}
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ import scipy.misc
 from PIL import Image
 
 import gstreamer
+# The line `from pose_engine import PoseEngine, EDGES, BODYPIX_PARTS` is importing specific objects
+# and variables from the `pose_engine` module. Here's what each of them represents:
 from pose_engine import PoseEngine, EDGES, BODYPIX_PARTS
 
 # Color mapping for bodyparts
@@ -36,9 +38,9 @@ BLUE_BODYPARTS = [k for k,v in BODYPIX_PARTS.items() if "leg" in v or "arm" in v
 
 def shadow_text(dwg, x, y, text, font_size=16):
     dwg.add(dwg.text(text, insert=(x + 1, y + 1), fill='black',
-                     font_size=font_size, style='font-family:sans-serif'))
+    font_size=font_size, style='font-family:sans-serif'))
     dwg.add(dwg.text(text, insert=(x, y), fill='white',
-                     font_size=font_size, style='font-family:sans-serif'))
+    font_size=font_size, style='font-family:sans-serif'))
 
 def draw_pose(dwg, pose, color='blue', threshold=0.2):
     xys = {}
@@ -46,7 +48,7 @@ def draw_pose(dwg, pose, color='blue', threshold=0.2):
         if keypoint.score < threshold: continue
         xys[label] = (int(keypoint.yx[1]), int(keypoint.yx[0]))
         dwg.add(dwg.circle(center=(int(keypoint.yx[1]), int(keypoint.yx[0])), r=5,
-                           fill='cyan', stroke=color))
+        fill='cyan', stroke=color))
     for a, b in EDGES:
         if a not in xys or b not in xys: continue
         ax, ay = xys[a]
@@ -167,14 +169,15 @@ def main():
     if args.videosrc.startswith('/dev/video'):
         print('Source size: {}'.format(src_size))
 
-    gstreamer.run_pipeline(Callback(engine,
-                                    anonymize=args.anonymize,
-                                    bodyparts=args.bodyparts),
-                           src_size, inference_size,
-                           mirror=args.mirror,
-                           videosrc=args.videosrc,
-                           h264=args.h264,
-                           jpeg=args.jpeg)
+    gstreamer.run_pipeline(Callback
+    (engine,
+    anonymize=args.anonymize,
+    bodyparts=args.bodyparts),
+    src_size, inference_size,
+    mirror=args.mirror,
+    videosrc=args.videosrc,
+    h264=args.h264,
+    jpeg=args.jpeg)
 
 
 if __name__ == '__main__':

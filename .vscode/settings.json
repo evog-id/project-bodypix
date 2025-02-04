@@ -3,5 +3,9 @@
     "direnv.path.executable": "C:\\msys64\\usr\\local\\bin\\direnv.exe",
     "perl.enable": true,
     "python.analysis.autoImportCompletions": true,
-    "python.analysis.typeCheckingMode": "standard"
+    "python.analysis.typeCheckingMode": "standard",
+    "python.pythonPath": "C:\\Users\\evgen\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+    "workbench.editor.defaultBinaryEditor": "default",
+    "inlinePythonPackageInstaller.autoInstall": true,
+    "autoPythonInstaller.autoInstall": true
 }
