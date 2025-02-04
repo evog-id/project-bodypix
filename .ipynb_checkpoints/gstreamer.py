@@ -13,17 +13,16 @@
 # limitations under the License.
 
 import sys
-import os
 from functools import partial
 import svgwrite
 import numpy as np
 
 import gi
 from gi.repository import GLib, GObject, Gst, GstBase
-from PIL import Image
-
 gi.require_version('Gst', '1.0')
 gi.require_version('GstBase', '1.0')
+from PIL import Image
+
 GObject.threads_init()
 Gst.init(None)
 

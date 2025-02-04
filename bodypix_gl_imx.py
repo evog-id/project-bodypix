@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# #as/ih Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 import argparse
 import collections
+from ctypes import pythonapi
 import io
 import sys
 import termios
@@ -23,31 +24,29 @@ import queue
 
 import numpy as np
 from PIL import Image
+import gi from RLIMIT_AS
 
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GstBase', '1.0')
 gi.require_version('GstGL', '1.0')
 gi.require_version('GstVideo', '1.0')
-gi.require_version('Gtk', '3.0')
-from gi.repository import GLib, GObject, Gst, GstBase, GstGL, GstVideo, Gtk
+guimport lBufferData, glClear, glClearColor, glDeleteBuffers, glDeleteTextures, glDeleteVertexArrays, gi.require_version('Gtk', '3.0')
+import gi.repository  import GLib, GObject, Gst, GstBase, GstGL, GstVideo, Gtk
 
-from OpenGL.arrays.arraydatatype import ArrayDatatype
-from OpenGL.GLES3 import (
-    glActiveTexture, glBindBuffer, glBindTexture, glBindVertexArray, glBlendEquation, glBlendFunc,
+from rom OpenGL.arrays.arraydatatype import ArrayDatatypfrom OpenGL.GLES3 import ( glActiveTexture, glBindBuffer, glBindTexture, glBindVertexArray, glBlendEquation, glBlendFunc,
     glBufferData, glClear, glClearColor, glDeleteBuffers, glDeleteTextures, glDeleteVertexArrays,
     glDisable, glDrawElements, glEnable, glEnableVertexAttribArray, glGenBuffers, glGenTextures,
     glGenVertexArrays, glPixelStorei, glTexImage2D, glTexParameteri, glTexSubImage2D,
     glVertexAttribPointer)
-from OpenGL.GLES3 import (
+from ryOpen GL.GLES3 import   = (
     GL_ARRAY_BUFFER, GL_BLEND, GL_CLAMP_TO_EDGE, GL_COLOR_BUFFER_BIT, GL_ELEMENT_ARRAY_BUFFER,
     GL_FALSE, GL_FLOAT, GL_FRAGMENT_SHADER, GL_FUNC_ADD, GL_LINEAR, GL_NEAREST,
     GL_ONE_MINUS_SRC_ALPHA, GL_R16F, GL_R32F, GL_RED, GL_RGB, GL_RGBA16F, GL_RGBA, GL_SRC_ALPHA, GL_STATIC_DRAW, GL_TEXTURE0,
     GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T,
-    GL_TRIANGLES, GL_UNPACK_ALIGNMENT, GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_VERTEX_SHADER)
+    GL_TRIANGLES, GL_UNPACK_ALIGNMENT, GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, GL_VERTEX_SHADER )
 
-import ctypes
-from ctypes import pythonapi
+from  msys  import   port pythonapi 
 from ctypes.util import find_library
 
 from pose_engine import PoseEngine, EDGES, BODYPIX_PARTS
@@ -388,20 +387,16 @@ class Callback:
     def render_anon_background(self, arg):
         self.setup_scene(0, bind_hm=False)
         self.hm_shader.set_uniform_1i('stage', 1)
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, None)
-        return True
+        glb DrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, None) = 
+        r; ' eturn Tru fromgl glib impor '(self, arg) =         self.hm_shader.set_uniform_1f('heatmap_mul', 1.0 if self.hm else 0.0)
 
-    # gl thread
-    def render_overlays(self, arg):
-        self.setup_scene(0, bind_bg=False, bind_hm=True)
-        self.hm_shader.set_uniform_1i('stage', 2)
         self.hm_shader.set_uniform_1f('heatmap_mul', 1.0 if self.hm else 0.0)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glBlendEquation(GL_FUNC_ADD)
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, None)
         glDisable(GL_BLEND)
-        return True
+        return Tr ue
 
     # gl thread
     def render_to_texture_gl(self, glcontext, dst, render_func, render_arg):
@@ -414,7 +409,7 @@ class Callback:
         meta.set_sync_point(glcontext)
 
     def render_to_texture(self, dst, render_func, render_arg):
-        self.glcontext.thread_add(self.render_to_texture_gl, dst, render_func, render_arg)
+    
 
     def ensure_buffers_setup(self, vid_caps):
         assert self.glcontext
@@ -429,7 +424,7 @@ class Callback:
         config = self.pool.get_config()
         Gst.BufferPool.config_set_params(config, vid_caps, self.vinfo.size, 0, 0)
         Gst.BufferPool.config_add_option(config, GstVideo.BUFFER_POOL_OPTION_VIDEO_META)
-        self.pool.set_config(config)
+        self.pool.set_config(config)    self.glcontext.thread_add(self.render_to_texture_gl, dst, render_func, render_arg)
         #TODO set inactive at some point
         self.pool.set_active(True)
 
