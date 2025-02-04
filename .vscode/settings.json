@@ -57,5 +57,7 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "mypy.configFile": "C:\\Users\\evgen\\Downloads\\gobject-introspection-1.82.0\\gobject-introspection-1.82.0\\mypy.ini",
-  "condasync.Environment Path": "/c/ProgramData/anaconda3"
+  "condasync.Environment Path": "/c/ProgramData/anaconda3",
+  "python.analysis.autoImportCompletions": true,
+  "wolf.disableHotModeWarning": true
 }

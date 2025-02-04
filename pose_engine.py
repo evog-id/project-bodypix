@@ -54,54 +54,53 @@ EDGES = (
 )
 
 KEYPOINTS = (
-  'nose',
-  'left eye',
-  'right eye',
-  'left ear',
-  'right ear',
-  'left shoulder',
-  'right shoulder',
-  'left elbow',
-  'right elbow',
-  'left wrist',
-  'right wrist',
-  'left hip',
-  'right hip',
-  'left knee',
-  'right knee',
-  'left ankle',
-  'right ankle'
+'nose',
+'left eye',
+'right eye',
+'left ear',
+'right ear',
+'left shoulder',
+'right shoulder',
+'left elbow',
+'right elbow',
+'left wrist',
+'right wrist',
+'left hip',
+'right hip',
+'left knee',
+'right knee',
+'left ankle' ,
+'right ankle'
 )
 
 BODYPIX_PARTS = {
-  0: "left face",
-  1: "right face",
-  2: "left upper arm front",
-  3: "left upper arm back",
-  4: "right upper arm front",
-  5: "right upper arm back",
-  6: "left lower arm front",
-  7: "left lower arm back",
-  8: "right lower arm front",
-  9: "right lower arm back",
-  10: "left hand",
-  11: "right hand",
-  12:  "torso front",
-  13:  "torso back",
-  14:  "left upper leg front",
-  15:  "left upper leg back",
-  16:  "right upper leg front",
-  17:  "right upper leg back",
-  18:  "left lower leg front",
-  19:  "left lower leg back",
-  20:  "right lower leg front",
-  21:  "right lower leg back",
-  22:  "left feet",
-  23:  "right feet",
-}
+0: "left face",
+1: "right face",
+2: "left upper arm front",
+3: "left upper arm back",
+4: "right upper arm front",
+5: "right upper arm back",
+6: "left lower arm front",
+7: "left lower arm back",
+8: "right lower arm front",
+9: "right lower arm back",
+10: "left hand",
+11: "right hand",
+12:  "torso front",
+13:  "torso back",
+14:  "left upper leg front",
+15:  "left upper leg back",
+16:  "right upper leg front",
+17:  "right upper leg back",
+18:  "left lower leg front",
+19:  "left lower leg back",
+20:  "right lower leg front",
+21:  "right lower leg back",
+22:  "left feet",
+23:  "right feet",  }
 
 class Keypoint:
-    __slots__ = ['k', 'yx', 'score']
+    slots__ = ['k', 'yx', 'score']
 
     def __init__(self, k, yx, score=None):
         self.k = k
@@ -127,60 +126,59 @@ class Pose:
 class PoseEngine:
     """Engine used for pose tasks."""
 
-    def __init__(self, model_path, mirror=False):
-        """Creates a PoseEngine with given model.
+def __init__(self, model_path, mirror=False):
+    """Creates a PoseEngine with given model.
 
-        Args:
-          model_path: String, path to TF-Lite Flatbuffer file.
-          mirror: Flip keypoints horizontally
+    Args:
+    model_path: String, path to TF-Lite Flatbuffer file.
+    mirror: Flip keypoints horizontally
 
-        Raises:
-          ValueError: An error occurred when model output is invalid.
-        """
-        self._mirror = mirror
+    Raises:
+    ValueError: An error occurred when model output is invalid.
+    """
+    self._mirror = mirror
 
-        edgetpu_delegate = load_delegate(EDGETPU_SHARED_LIB)
-        posenet_decoder_delegate = load_delegate(POSENET_SHARED_LIB)
-        self._interpreter = Interpreter(
-            model_path, experimental_delegates=[edgetpu_delegate, posenet_decoder_delegate])
-        self._interpreter.allocate_tensors()
-        self._input_tensor_shape = self._interpreter.get_input_details()[0]['shape']
-        if (self._input_tensor_shape.size != 4 or
-                self._input_tensor_shape[3] != 3 or
-                self._input_tensor_shape[0] != 1):
-            raise ValueError(
-                ('Image model should have input shape [1, height, width, 3]!'
-                 ' This model has {}.'.format(self._input_tensor_shape)))
-        _, self.image_height, self.image_width, self.image_depth = self._input_tensor_shape
+    edgetpu_delegate = load_delegate(EDGETPU_SHARED_LIB)
+    posenet_decoder_delegate = load_delegate(POSENET_SHARED_LIB)
+    self._interpreter = Interpreter(
+        model_path, experimental_delegates=[edgetpu_delegate, posenet_decoder_delegate])
+    self._interpreter.allocate_tensors()
+    self._input_tensor_shape = self._interpreter.get_input_details()[0]['shape']
+    if (self._input_tensor_shape.size != 4 or
+            self._input_tensor_shape[3] != 3 or
+            self._input_tensor_shape[0] != 1):
+        raise ValueError(
+            'Image model should have input shape [1, height, width, 3]! '
+            'This model has {}.'.format(self._input_tensor_shape))
+    _, self.image_height, self.image_width, self.image_depth = self._input_tensor_shape
 
+    # Auto-detect stride size
+    def calcStride(h, w, L):
+        return int((2*h*w)/(math.sqrt(h**2 + 4*h*L*w - 2*h*w + w**2) - h - w))
 
-        # Auto-detect stride size
-        def calcStride(h,w,L):
-          return int((2*h*w)/(math.sqrt(h**2 + 4*h*L*w - 2*h*w + w**2) - h - w))
+    details = self._interpreter.get_output_details()[5]
+    self.heatmap_zero_point = details['quantization_parameters']['zero_points'][0]
+    self.heatmap_scale = details['quantization_parameters']['scales'][0]
+    heatmap_size = self._interpreter.tensor(details['index'])().nbytes
+    self.stride = calcStride(self.image_height, self.image_width, heatmap_size)
+    self.heatmap_size = (self.image_width // self.stride + 1, self.image_height // self.stride + 1)
+    details = self._interpreter.get_output_details()[6]
+    self.parts_zero_point = details['quantization_parameters']['zero_points'][0]
+    self.parts_scale = details['quantization_parameters']['scales'][0]
 
-        details = self._interpreter.get_output_details()[5]
-        self.heatmap_zero_point = details['quantization_parameters']['zero_points'][0]
-        self.heatmap_scale = details['quantization_parameters']['scales'][0]
-        heatmap_size = self._interpreter.tensor(details['index'])().nbytes
-        self.stride = calcStride(self.image_height, self.image_width, heatmap_size)
-        self.heatmap_size = (self.image_width // self.stride + 1, self.image_height // self.stride + 1)
-        details = self._interpreter.get_output_details()[6]
-        self.parts_zero_point = details['quantization_parameters']['zero_points'][0]
-        self.parts_scale = details['quantization_parameters']['scales'][0]
-
-        print("Heatmap size: ", self.heatmap_size)
-        print("Stride: ", self.stride, self.heatmap_size)
+    print("Heatmap size: ", self.heatmap_size)
+    print("Stride: ", self.stride, self.heatmap_size)
 
 
     def DetectPosesInImage(self, img):
         """Detects poses in a given image.
 
-           For ideal results make sure the image fed to this function is close to the
-           expected input size - it is the caller's responsibility to resize the
-           image accordingly.
+For ideal results make sure the image fed to this function is close to the
+\expected input size - it is the caller's responsibility to resize the
+image accordingly.
 
         Args:
-          img: numpy array containing image
+img: numpy array containing image
         """
 
         # Extend or crop the input to match the input shape of the network.
@@ -194,12 +192,12 @@ class PoseEngine:
         # Run the inference (API expects the data to be flattened)
         inference_time, outputs = self.run_inference(img.flatten())
         poses = self._parse_poses(outputs)
-        heatmap, bodyparts = self._parse_heatmaps(outputs)
+        heatmap, bodyparts = self._parse_heatmaps(output)
         return inference_time, poses, heatmap, bodyparts
 
     def DetectPosesInTensor(self, tensor):
         inference_time, output = self.run_inference(tensor)
-        poses = self._parse_poses(outputs)
+        poses = self._parse_poses(output)
         heatmap, bodyparts = self._parse_heatmaps(outputs)
         return inference_time, poses, heatmap, bodyparts
 
@@ -253,3 +251,5 @@ class PoseEngine:
             output.append(tensor)
 
         return (duration_ms, output)
+
+
