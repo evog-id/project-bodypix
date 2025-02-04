@@ -1,7 +1,7 @@
 {
     "condasync.Environment Path": "/c/ProgramData/anaconda3",
     "direnv.path.executable": "/c/msys64/usr/local/bin/direnv.exe",
-    "perl.enable": false,
+    "perl.enable": true,
     "python.analysis.autoImportCompletions": true,
     "python.analysis.typeCheckingMode": "standard"
 }
