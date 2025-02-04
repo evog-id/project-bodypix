@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import time
+import sys
 import svgwrite
 import re
 import PIL
